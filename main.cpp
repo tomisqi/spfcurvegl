@@ -20,8 +20,19 @@ int main(int argc, char** argv)
 	{
 		glfwPollEvents();
 
-		glClearColor(0.45f, 0.55f, 1.00f, 1.00f);
+		glClearColor(0.0f, 0.0f, 1.00f, 1.00f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// draw square
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glBegin(GL_QUADS); // Start drawing a quad primitive
+		{
+			glVertex2d(-0.5f, -0.5f);
+			glVertex2d(0.5f, -0.5f);
+			glVertex2d(0.5f, 0.5f);
+			glVertex2d(-0.5f, 0.5f);
+		}
+		glEnd();
 
 		glfwSwapBuffers(window);
 	}
