@@ -1,14 +1,87 @@
 #include <stdio.h>
 #include <GLFW/glfw3.h>
+#include "color.h"
+#include "vector.h"
+
+// TODOs
+// [ ] Build and run from command line
+// [ ] Pass hilbert level via command line
+// [ ] Draw hilbert curve based on level
+//
 
 #define WINDOW_SIZE 900
-
 
 static void GlfwErrorCallback(int error, const char* description)
 {
 	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
+static void DrawRect(Vector2 pos, Vector2 size, Color color)
+{
+	glColor3f(color.r, color.g, color.b);
+	glBegin(GL_LINE_LOOP);
+	{
+		glVertex2f(pos.x, pos.y);
+		glVertex2f(pos.x + size.x, pos.y);
+		glVertex2f(pos.x + size.x, pos.y + size.y);
+		glVertex2f(pos.x, pos.y + size.y);
+	}
+	glEnd();
+}
+
+static void DrawRectFill(Vector2 pos, Vector2 size, Color color)
+{
+	glColor3f(color.r, color.g, color.b);
+	glBegin(GL_QUADS);
+	{
+		glVertex2f(pos.x, pos.y);
+		glVertex2f(pos.x + size.x, pos.y);
+		glVertex2f(pos.x + size.x, pos.y + size.y);
+		glVertex2f(pos.x, pos.y + size.y);
+	}
+	glEnd();
+}
+
+static void DrawLine(Vector2 start, Vector2 end, Color color)
+{
+	glColor3f(color.r, color.g, color.b);
+	glBegin(GL_LINES);
+	{
+		glVertex2f(start.x, start.y);
+		glVertex2f(end.x, end.y);
+	}
+	glEnd();
+}
+
+static void DrawGrid(Vector2 tileSize, Color color)
+{
+	glColor3f(color.r, color.g, color.b);
+	glBegin(GL_LINES);
+
+	// vertical lines
+	int iter = WINDOW_SIZE / tileSize.x;
+	float x = 0;
+	for (int i = 0; i < iter; i++)
+	{
+		glVertex2f(x, 0);
+		glVertex2f(x, WINDOW_SIZE);
+		x += tileSize.x;
+	}
+
+	// horizontal lines
+	iter = WINDOW_SIZE / tileSize.y;
+	float y = 0;
+	for (int i = 0; i < iter; i++)
+	{
+		glVertex2f(0, y);
+		glVertex2f(WINDOW_SIZE, y);
+		y += tileSize.y;
+	}
+
+	glEnd();
+}
+
+#define HILBERT_LEVEL 4
 int main(int argc, char** argv)
 {
 	glfwSetErrorCallback(GlfwErrorCallback);
@@ -33,7 +106,7 @@ int main(int argc, char** argv)
 
 		// load a different projection matrix
 		// this will let us use a screen space coordinates that are then transformed to clip space by opengl
-		// any point Pcl= Mproj x P
+		// Pcl= Mproj x P
 		// where,
 		//  Pcl: point in clip space
 		//  Mproj: Projection maxtrix
@@ -49,16 +122,8 @@ int main(int argc, char** argv)
 		};
 		glLoadMatrixf(projM);
 
-		// draw square
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glBegin(GL_QUADS); // Start drawing a quad primitive
-		{
-			glVertex2d(0.0f, 0.0f);
-			glVertex2d(450.0f, 0.0f);
-			glVertex2d(450.0f, 450.0f);
-			glVertex2d(0.0f, 450.0f);
-		}
-		glEnd();
+		float tileSize = WINDOW_SIZE / (2 << (HILBERT_LEVEL - 1));
+		DrawGrid(V2(tileSize, tileSize), COLOR_BLACK);
 
 		glfwSwapBuffers(window);
 	}
