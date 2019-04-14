@@ -1,12 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <GLFW/glfw3.h>
 #include "color.h"
 #include "vector.h"
+#include "hilbert.h"
 
 // TODOs
 // [ ] Build and run from command line
-// [ ] Pass hilbert level via command line
 // [x] Draw hilbert curve based on level
+// [ ] Peano 
 // [ ] Readme
 
 #define WINDOW_SIZE 900
@@ -57,8 +59,9 @@ static void DrawCurve(Vector2 points[], int count, Color color)
 {
 	glColor4f(color.r, color.g, color.b, color.a);
 	glBegin(GL_LINES);
-	for (int i = 0; i < count; i++)
+	for (int i = 1; i < count; i++)
 	{
+		glVertex2f(points[i - 1].x, points[i - 1].y);
 		glVertex2f(points[i].x, points[i].y);
 	}
 	glEnd();
@@ -99,69 +102,6 @@ static void DrawGrid(Vector2 tileSize, Color color)
 	glEnd();
 }
 
-static float GetHilbertTileSize(int screenSize, int hilbertLevel)
-{
-	float result = screenSize / (2 << (hilbertLevel - 1));
-	return result;
-}
-
-static Vector2 Hilbert(int level, float tileSize, Vector2 pos, Vector2 direction)
-{
-	Vector2 newPos = pos;
-	if (level > 0)
-	{
-		if (direction == VECTOR2_LEFT)
-		{
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_UP);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_RIGHT, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_LEFT);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_DOWN, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_LEFT);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_LEFT, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_DOWN);
-		}
-		if (direction == VECTOR2_RIGHT)
-		{
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_DOWN);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_LEFT, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_RIGHT);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_UP, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_RIGHT);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_RIGHT, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_UP);
-		}
-		if (direction == VECTOR2_UP)
-		{
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_LEFT);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_DOWN, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_UP);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_RIGHT, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_UP);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_UP, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_RIGHT);
-		}
-		if (direction == VECTOR2_DOWN)
-		{
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_RIGHT);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_UP, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_DOWN);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_LEFT, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_DOWN);
-			newPos = DrawLineTranslate(newPos, tileSize * VECTOR2_DOWN, COLOR_GREEN);
-			newPos = Hilbert(level - 1, tileSize, newPos, VECTOR2_LEFT);
-		}
-	}
-
-	return newPos;
-}
-
-static void DrawHilbertCurve(int level)
-{
-	float tileSize = GetHilbertTileSize(WINDOW_SIZE, level);
-	Vector2 startPos = V2(0.0f, WINDOW_SIZE) + V2(tileSize / 2.0f, -tileSize / 2.0f); // startPos is the middle of the upper-left tile
-	Hilbert(level, tileSize, startPos, VECTOR2_UP);
-}
-
 #define HILBERT_LEVEL 3
 int main(int argc, char** argv)
 {
@@ -174,8 +114,10 @@ int main(int argc, char** argv)
 	glfwSwapInterval(1); // Enable vsync
 
 	Color clearColor = COLOR_BLACK;
-	Color gridColor = COLOR_WHITE;
-	Color curveColor = COLOR_GREEN;
+	Color gridColor = Col(119, 119, 119);//gray
+	Color curveColor = COLOR_YELLOW;
+
+	HilbertCurve hcurve = HilbertGenCurve(HILBERT_LEVEL, WINDOW_SIZE);
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -197,21 +139,21 @@ int main(int argc, char** argv)
 		//  P: point in screen space
 		glMatrixMode(GL_PROJECTION);
 		float v = 2.0f / WINDOW_SIZE;
-		float projM[] =
+		float Mproj[] =
 		{
 		 	 v,  0,  0,  0,
 			 0,  v,  0,  0,
 			 0,  0,  1,  0,
 			-1, -1,  0,  1,
 		};
-		glLoadMatrixf(projM);
+		glLoadMatrixf(Mproj);
 
-		float tileSize = GetHilbertTileSize(WINDOW_SIZE, HILBERT_LEVEL);
-		DrawGrid(V2(tileSize, tileSize), gridColor); // uncomment to see grid
-		DrawHilbertCurve(HILBERT_LEVEL);
+		DrawGrid(V2(hcurve.tileSize, hcurve.tileSize), gridColor);
+		DrawCurve(hcurve.points, hcurve.pointCount, curveColor);
 
 		glfwSwapBuffers(window);
 	}
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 

@@ -1,17 +1,18 @@
 #pragma once
 
-struct Vector2
-{
-	float x;
-	float y;
-};
-
 #define VECTOR2_ZERO	V2(0.0f, 0.0f)
 #define VECTOR2_ONE		V2(1.0f, 1.0f)
 #define VECTOR2_RIGHT	V2(1.0f, 0.0f)
 #define VECTOR2_UP		V2(0.0f, 1.0f)
 #define VECTOR2_LEFT	V2(-1.0f, 0.0f)
 #define VECTOR2_DOWN	V2(0.0f, -1.0f)
+
+struct Vector2
+{
+	float x;
+	float y;
+};
+
 static inline Vector2 V2(float x, float y)
 {
 	Vector2 result = {x, y};
