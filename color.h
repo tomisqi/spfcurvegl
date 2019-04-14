@@ -3,21 +3,18 @@
 struct Color
 {
 	float r;
-	float b;
 	float g;
+	float b;
 	float a;
 };
 
-#define COLOR_WHITE NewColor(1.0f, 1.0f, 1.0f)
-#define COLOR_BLACK NewColor(0.0f, 0.0f, 0.0f)
-#define COLOR_RED   NewColor(1.0f, 0.0f, 0.0f)
-static inline Color NewColor(float r, float g, float b)
+#define COLOR_WHITE Col(1.0f, 1.0f, 1.0f)
+#define COLOR_BLACK Col(0.0f, 0.0f, 0.0f)
+#define COLOR_RED   Col(1.0f, 0.0f, 0.0f)
+#define COLOR_BLUE  Col(0.0f, 0.0f, 1.0f)
+#define COLOR_GREEN Col(0.0f, 1.0f, 0.0f)
+static inline Color Col(float r, float g, float b, float a = 1.0f)
 {
-	Color result;
-	result.r = r;
-	result.g = g;
-	result.b = b;
-	result.a = 1.0f;
-
+	Color result = {r, g, b, a};
 	return result;
 }
