@@ -67,13 +67,6 @@ static void DrawCurve(Vector2 points[], int count, Color color)
 	glEnd();
 }
 
-static Vector2 DrawLineTranslate(Vector2 start, Vector2 translation, Color color)
-{
-	Vector2 end = start + translation;
-	DrawLine(start, end, color);
-	return end;
-}
-
 static void DrawGrid(Vector2 tileSize, Color color)
 {
 	glColor4f(color.r, color.g, color.b, color.a);
