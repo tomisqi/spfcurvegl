@@ -103,7 +103,7 @@ int main(int argc, char** argv)
 {
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit()) return 1;
-	GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "spf_curve", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "spfcurvegl", NULL, NULL);
 	if (window == NULL) return 1;
 
 	glfwMakeContextCurrent(window);
