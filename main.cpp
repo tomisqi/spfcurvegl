@@ -4,12 +4,14 @@
 #include "color.h"
 #include "vector.h"
 #include "hilbert.h"
+#include "peano.h"
 
 // TODOs
 // [ ] Build and run from command line
 // [x] Draw hilbert curve based on level
-// [ ] Peano 
+// [x] Peano 
 // [ ] Readme
+// [ ] Finish curve.h
 
 #define WINDOW_SIZE 900
 
@@ -96,11 +98,12 @@ static void DrawGrid(Vector2 tileSize, Color color)
 }
 
 #define HILBERT_LEVEL 3
+#define PEANO_LEVEL 3
 int main(int argc, char** argv)
 {
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit()) return 1;
-	GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "hilbertgl", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "spf_curve", NULL, NULL);
 	if (window == NULL) return 1;
 
 	glfwMakeContextCurrent(window);
@@ -110,7 +113,8 @@ int main(int argc, char** argv)
 	Color gridColor = Col(119, 119, 119);//gray
 	Color curveColor = COLOR_YELLOW;
 
-	HilbertCurve hcurve = HilbertGenCurve(HILBERT_LEVEL, WINDOW_SIZE);
+	//HilbertCurve hcurve = HilbertGenCurve(HILBERT_LEVEL, WINDOW_SIZE);
+	PeanoCurve pcurve = PeanoGenCurve(PEANO_LEVEL, WINDOW_SIZE);
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -141,8 +145,9 @@ int main(int argc, char** argv)
 		};
 		glLoadMatrixf(Mproj);
 
-		DrawGrid(V2(hcurve.tileSize, hcurve.tileSize), gridColor);
-		DrawCurve(hcurve.points, hcurve.pointCount, curveColor);
+		DrawGrid(V2(pcurve.tileSize, pcurve.tileSize), gridColor);
+		//DrawCurve(hcurve.points, hcurve.pointCount, curveColor);
+		DrawCurve(pcurve.points, pcurve.pointCount, curveColor);
 
 		glfwSwapBuffers(window);
 	}
