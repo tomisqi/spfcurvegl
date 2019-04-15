@@ -2,6 +2,40 @@
 #include "vector.h"
 #include "hilbert.h"
 
+enum HilbertType
+{
+	TYPE_0 = 0, // up
+	TYPE_1,		// left
+	TYPE_2,		// down
+	TYPE_3,		// right
+};
+
+struct HilbertSequence
+{
+	Vector2 steps[3];
+	HilbertType typeSeq[4];
+};
+
+static HilbertSequence hSeqs[4] =
+{
+	{ // TYPE_0
+		{VECTOR2_DOWN, VECTOR2_RIGHT, VECTOR2_UP},
+		{TYPE_1, TYPE_0, TYPE_0, TYPE_3}
+	},
+	{ // TYPE_1
+		{VECTOR2_RIGHT, VECTOR2_DOWN, VECTOR2_LEFT},
+		{TYPE_0, TYPE_1, TYPE_1, TYPE_2}
+	},
+	{ // TYPE_2
+		{VECTOR2_UP, VECTOR2_LEFT, VECTOR2_DOWN},
+		{TYPE_3, TYPE_2, TYPE_2, TYPE_1}
+	},
+	{ // TYPE_3
+		{VECTOR2_LEFT, VECTOR2_UP, VECTOR2_RIGHT},
+		{TYPE_2, TYPE_3, TYPE_3, TYPE_0}
+	},
+};
+
 static float GetHilbertPointCount(int level)
 {
 	int result = (2 << (level - 1)) * (2 << (level - 1));
@@ -14,77 +48,40 @@ static float GetHilbertTileSize(int level, int canvasSize)
 	return result;
 }
 
-static int Hilbert(int level, float tileSize, Vector2 direction, Vector2 points[], int nextPoint)
+static int Hilbert(Vector2 vectors[], int nextVectorIdx, int level, HilbertType type)
 {
-	int p = nextPoint;
+	int vIdx = nextVectorIdx;
 	if (level > 0)
 	{
-		Vector2 sublevel[4];
-		Vector2 connect[3];
-		if (direction == VECTOR2_LEFT)
-		{
-			connect[0] = VECTOR2_RIGHT;
-			connect[1] = VECTOR2_DOWN;
-			connect[2] = VECTOR2_LEFT;
-			sublevel[0] = VECTOR2_UP;
-			sublevel[1] = VECTOR2_LEFT;
-			sublevel[2] = VECTOR2_LEFT;
-			sublevel[3] = VECTOR2_DOWN;
-		}
-		if (direction == VECTOR2_RIGHT)
-		{
-			connect[0] = VECTOR2_LEFT;
-			connect[1] = VECTOR2_UP;
-			connect[2] = VECTOR2_RIGHT;
-			sublevel[0] = VECTOR2_DOWN;
-			sublevel[1] = VECTOR2_RIGHT;
-			sublevel[2] = VECTOR2_RIGHT;
-			sublevel[3] = VECTOR2_UP;
-		}
-		if (direction == VECTOR2_UP)
-		{
-			connect[0] = VECTOR2_DOWN;
-			connect[1] = VECTOR2_RIGHT;
-			connect[2] = VECTOR2_UP;
-			sublevel[0] = VECTOR2_LEFT;
-			sublevel[1] = VECTOR2_UP;
-			sublevel[2] = VECTOR2_UP;
-			sublevel[3] = VECTOR2_RIGHT;
-		}
-		if (direction == VECTOR2_DOWN)
-		{
-			connect[0] = VECTOR2_UP;
-			connect[1] = VECTOR2_LEFT;
-			connect[2] = VECTOR2_DOWN;
-			sublevel[0] = VECTOR2_RIGHT;
-			sublevel[1] = VECTOR2_DOWN;
-			sublevel[2] = VECTOR2_DOWN;
-			sublevel[3] = VECTOR2_LEFT;
-		}
+		HilbertSequence hSeq = hSeqs[type];
 
-		p = Hilbert(level - 1, tileSize, sublevel[0], points, p);
-		points[p] = points[p - 1] + tileSize * connect[0];
-		p++;
-		p = Hilbert(level - 1, tileSize, sublevel[1], points, p);
-		points[p] = points[p - 1] + tileSize * connect[1];
-		p++;
-		p = Hilbert(level - 1, tileSize, sublevel[2], points, p);
-		points[p] = points[p - 1] + tileSize * connect[2];
-		p++;
-		p = Hilbert(level - 1, tileSize, sublevel[3], points, p);
+		vIdx = Hilbert(vectors, vIdx, level - 1, hSeq.typeSeq[0]);
+		vectors[vIdx++] = hSeq.steps[0];
+		vIdx = Hilbert(vectors, vIdx, level - 1, hSeq.typeSeq[1]);
+		vectors[vIdx++] = hSeq.steps[1];
+		vIdx = Hilbert(vectors, vIdx, level - 1, hSeq.typeSeq[2]);
+		vectors[vIdx++] = hSeq.steps[2];
+		vIdx = Hilbert(vectors, vIdx, level - 1, hSeq.typeSeq[3]);
 	}
 
-	return p;
+	return vIdx;
 }
 
 HilbertCurve HilbertGenCurve(int level, int canvasSize)
 {
 	float tileSize = GetHilbertTileSize(level, canvasSize);
 	int pointCount = GetHilbertPointCount(level);
-	Vector2* points = (Vector2*)malloc(pointCount * sizeof(Vector2));
-	Vector2 startPos = V2(0.0f, canvasSize) + V2(tileSize / 2.0f, -tileSize / 2.0f); // startPos is the middle of the upper-left tile
-	points[0] = startPos;
-	Hilbert(level, tileSize, VECTOR2_UP, points, 1);
+	Vector2* vectors = (Vector2*)malloc(pointCount * sizeof(Vector2));
+	Hilbert(vectors, 1, level, TYPE_0);
+
+	// Hilbert() produces vectors, but we need actual points in the canvas
+	Vector2* points = vectors;
+	Vector2 startPoint = V2(0.0f, canvasSize) + V2(tileSize / 2.0f, -tileSize / 2.0f); // startPos is the middle of the upper-left tile
+	points[0] = startPoint;
+	for (int i = 1; i < pointCount; i++)
+	{
+		points[i] = (tileSize * vectors[i]) + points[i - 1];
+	}
 
 	HilbertCurve result = {points, pointCount, tileSize};
 	return result;
