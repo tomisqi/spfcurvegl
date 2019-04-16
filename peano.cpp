@@ -30,9 +30,9 @@ static PeanoSequence pSeqs[4] =
 	},
 };
 
-static float GetPeanoPointCount(int level)
+static int GetPeanoPointCount(int level)
 {
-	int result = pow(3, level) * pow(3, level);
+	int result = pow(9, level); // 3^level * 3^level = 9^level
 	return result;
 }
 
@@ -59,7 +59,7 @@ static int Peano(Vector2 vectors[], int nextVectorIdx, int level, CurveType type
 	return vIdx;
 }
 
-PeanoCurve PeanoGenCurve(int level, int canvasSize)
+Curve PeanoGenCurve(int level, int canvasSize)
 {
 	float tileSize = GetPeanoTileSize(level, canvasSize);
 	int pointCount = GetPeanoPointCount(level);
@@ -78,6 +78,6 @@ PeanoCurve PeanoGenCurve(int level, int canvasSize)
 	}
 
 	// Create data structure and return
-	PeanoCurve result = { points, pointCount, tileSize };
+	Curve result = { points, pointCount, tileSize };
 	return result;
 }

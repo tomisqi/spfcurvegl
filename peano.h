@@ -1,11 +1,5 @@
 #pragma once
 #include "vector.h"
+#include "curve.h"
 
-struct PeanoCurve
-{
-	Vector2* points;
-	int pointCount;
-	float tileSize;
-};
-
-PeanoCurve PeanoGenCurve(int level, int canvasSize);
+Curve PeanoGenCurve(int level, int canvasSize);

@@ -1,11 +1,5 @@
 #pragma once
 #include "vector.h"
+#include "curve.h"
 
-struct HilbertCurve
-{
-	Vector2* points;
-	int pointCount;
-	float tileSize;
-};
-
-HilbertCurve HilbertGenCurve(int level, int canvasSize);
+Curve HilbertGenCurve(int level, int canvasSize);

@@ -1,3 +1,4 @@
+#pragma once
 #include "vector.h"
 
 enum CurveType
@@ -6,4 +7,11 @@ enum CurveType
 	TYPE_1,
 	TYPE_2,
 	TYPE_3,
+};
+
+struct Curve
+{
+	Vector2* points;
+	int pointCount;
+	float tileSize;
 };

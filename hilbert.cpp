@@ -29,7 +29,7 @@ static HilbertSequence hSeqs[4] =
 	},
 };
 
-static float GetHilbertPointCount(int level)
+static int GetHilbertPointCount(int level)
 {
 	int result = (2 << (level - 1)) * (2 << (level - 1));
 	return result;
@@ -37,7 +37,7 @@ static float GetHilbertPointCount(int level)
 
 static float GetHilbertTileSize(int level, int canvasSize)
 {
-	float result = canvasSize/ (2 << (level - 1));
+	float result = canvasSize / (2 << (level - 1));
 	return result;
 }
 
@@ -58,7 +58,7 @@ static int Hilbert(Vector2 vectors[], int nextVectorIdx, int level, CurveType ty
 	return vIdx;
 }
 
-HilbertCurve HilbertGenCurve(int level, int canvasSize)
+Curve HilbertGenCurve(int level, int canvasSize)
 {
 	float tileSize = GetHilbertTileSize(level, canvasSize);
 	int pointCount = GetHilbertPointCount(level);
@@ -77,6 +77,6 @@ HilbertCurve HilbertGenCurve(int level, int canvasSize)
 	}
 
 	// Create data structure and return
-	HilbertCurve result = {points, pointCount, tileSize};
+	Curve result = {points, pointCount, tileSize};
 	return result;
 }
