@@ -3,8 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "color.h"
 #include "vector.h"
-#include "hilbert.h"
-#include "peano.h"
+#include "curve.h"
 #include "string.h"
 
 // TODOs
@@ -12,7 +11,7 @@
 // [x] Draw hilbert curve based on level
 // [x] Peano 
 // [ ] Readme
-// [ ] Finish curve.h
+// [x] Finish curve.h
 
 #define WINDOW_SIZE 900
 
@@ -106,21 +105,21 @@ static void ShowHelp()
 	printf("         -peano   <level>\n");
 }
 
-#define HILBERT_LEVEL 3
-#define PEANO_LEVEL 3
 int main(int argc, char** argv)
 {
-	Curve curve;
+	CurveType curveType = HILBERT;
+	int level = 2;
+
 	if (argc > 1)
 	{
-		int level = argc > 2 ? strtol(argv[2], NULL, 10) : 1;
+	    level = argc > 2 ? strtol(argv[2], NULL, 10) : 2;
 		if (!strcmp(argv[1], "-hilbert"))
 		{
-			curve = HilbertGenCurve(level, WINDOW_SIZE);
+			curveType = HILBERT;
 		}
 		else if (!strcmp(argv[1], "-peano"))
 		{
-			curve = PeanoGenCurve(level, WINDOW_SIZE);
+			curveType = PEANO;
 		}
 		else
 		{
@@ -128,24 +127,22 @@ int main(int argc, char** argv)
 			return 1;
 		}
 	}
-	else
-	{
-		// Generate a level-2 Hilbert curve if nothing is passed
-		ShowHelp();
-		curve = HilbertGenCurve(2, WINDOW_SIZE);
-	}
 
+	// Generate curve draw data
+	CurveDrawData curve = GenCurve(curveType, level, WINDOW_SIZE);
+
+	// GlFw initializations
 	glfwSetErrorCallback(GlfwErrorCallback);
 	if (!glfwInit()) return 1;
 	GLFWwindow* window = glfwCreateWindow(WINDOW_SIZE, WINDOW_SIZE, "spfcurvegl", NULL, NULL);
 	if (window == NULL) return 1;
-
 	glfwMakeContextCurrent(window);
+
 	glfwSwapInterval(1); // Enable vsync
 
 	Color clearColor = COLOR_BLACK;
-	Color gridColor = Col(119, 119, 119);//gray
 	Color curveColor = COLOR_YELLOW;
+	Color gridColor = Col(119, 119, 119); // Gray
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -177,7 +174,7 @@ int main(int argc, char** argv)
 		};
 		glLoadMatrixf(Mproj);
 
-		// Draw the grid and the curve
+		// Draw grid and curve
 		DrawGrid(V2(curve.tileSize, curve.tileSize), gridColor);
 		DrawCurve(curve.points, curve.pointCount, curveColor);
 

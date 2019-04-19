@@ -1,4 +1,6 @@
+#if 0
 #pragma once
 #include "curve.h"
 
-Curve PeanoGenCurve(int level, int canvasSize);
+CurveDrawData PeanoGenCurve(int level, int canvasSize);
+#endif
