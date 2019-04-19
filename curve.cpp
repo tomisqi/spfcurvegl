@@ -106,7 +106,7 @@ CurveDrawData GenCurve(CurveType curveType, int level, int canvasSize)
 {
 	float tileSize;
 	int pointCount = 0;
-	CurveData* curveData;
+	CurveData* curveData = NULL;
 	if (curveType == HILBERT)
 	{
 		tileSize = CalcHilbertTileSize(level, canvasSize);

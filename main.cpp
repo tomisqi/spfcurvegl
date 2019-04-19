@@ -6,13 +6,6 @@
 #include "curve.h"
 #include "string.h"
 
-// TODOs
-// [x] Build and run from command line
-// [x] Draw hilbert curve based on level
-// [x] Peano 
-// [ ] Readme
-// [x] Finish curve.h
-
 #define WINDOW_SIZE 900
 
 static void GlfwErrorCallback(int error, const char* description)
