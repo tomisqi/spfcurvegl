@@ -69,7 +69,7 @@ Curve PeanoGenCurve(int level, int canvasSize)
 	Peano(vectors, 1, level, TYPE_2);
 
 	// Transform vectors to points
-	Vector2* points = vectors;
+	Vector2* points = vectors; // Note: Vectors will be overwritten
 	Vector2 startPoint = V2(0.0f, canvasSize) + V2(tileSize / 2.0f, -tileSize / 2.0f); // startPos is the middle of the upper-left tile
 	points[0] = startPoint;
 	for (int i = 1; i < pointCount; i++)

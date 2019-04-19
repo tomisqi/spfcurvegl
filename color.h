@@ -3,8 +3,8 @@
 #define COLOR_WHITE		Col(1.0f, 1.0f, 1.0f)
 #define COLOR_BLACK		Col(0.0f, 0.0f, 0.0f)
 #define COLOR_RED		Col(1.0f, 0.0f, 0.0f)
-#define COLOR_BLUE		Col(0.0f, 0.0f, 1.0f)
 #define COLOR_GREEN		Col(0.0f, 1.0f, 0.0f)
+#define COLOR_BLUE		Col(0.0f, 0.0f, 1.0f)
 #define COLOR_YELLOW	Col(1.0f, 1.0f, 0.0f)
 
 struct Color
